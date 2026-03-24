@@ -4,23 +4,52 @@
 
 # Stroke Font Viewer
 
-A web-based viewer and editor for correcting the stroke order of **M+ OUTLINE FONTS** data,
-cross-referenced against **KanjiVG** as the authoritative source.
+A web-based viewer and stroke order editor for multiple stroke fonts —
+**M+ OUTLINE FONTS**, **KST32B**, and **ISO 3098** (standard and italic).
 
 [![Deploy](https://github.com/azo234/stroke-font-viewer/actions/workflows/deploy.yml/badge.svg)](https://github.com/azo234/stroke-font-viewer/actions/workflows/deploy.yml)
+
+**[→ Open Stroke Font Viewer](https://azo234.github.io/stroke-font-viewer/)**
 
 ---
 
 ## Background
 
-The [M+ OUTLINE FONTS](https://mplusfonts.github.io/) project provides stroke-based font data
-for 5,233 Japanese characters (kanji, hiragana, katakana).  
-[KanjiVG](https://kanjivg.tagaini.net/) independently provides stroke order diagrams derived from
-Japanese schoolbook fonts (specifically *DFPKyoKaSho-W3* by DynaLab, 1997).
+Stroke fonts (also called vector fonts or single-stroke fonts) represent each character as a set
+of center-line paths rather than filled outlines. They are used in CAD, pen plotters, laser
+engravers, LED/EL-wire signage, and animated display art.
 
-Because M+ and KanjiVG were developed independently, their stroke orders do not always agree.  
-**This tool exists to identify and correct those discrepancies**, with KanjiVG treated as the
-authoritative reference.
+This viewer collects several stroke font datasets into one place and provides tools to:
+
+- **Browse** stroke animations for any character
+- **Compare** stroke order against [KanjiVG](https://kanjivg.tagaini.net/) (the authoritative
+  Japanese schoolbook stroke order reference)
+- **Edit** stroke order and segment structure (`/?mode=edit`)
+- **Render** arbitrary text to a PNG image using any of the loaded fonts
+
+The primary goal for the M+ dataset is correcting stroke order discrepancies against KanjiVG.
+KST32B and ISO 3098 have no defined stroke order — corrections to their stroke sequencing are
+equally welcome.
+
+---
+
+## Fonts
+
+| Font | Characters | Description |
+|---|---:|---|
+| **M+ OUTLINE** (`strokes.json`) | 5,235 | Japanese stroke font (kanji, hiragana, katakana). Cubic bezier curves. |
+| **KST32B** (`kst32b_strokes.json`) | 6,719 | Japanese + Latin stroke font for CAD (Saka.N). Line segments only. |
+| **ISO 3098** (`iso3098_strokes.json`) | 319 | Engineering drawing font, standard style. Lines + circular arcs. |
+| **ISO 3098 Italic** (`iso3098i_strokes.json`) | 319 | Engineering drawing font, italic style. Lines + circular arcs. |
+| **KanjiVG** (`kanjivg.json`) | 5,144 | Reference only — schoolbook stroke order (Ulrich Apel). Not selectable as main font. |
+
+### Path commands used per font
+
+| Font | Commands |
+|---|---|
+| M+ OUTLINE | `M` `L` `C` `c` |
+| KST32B | `M` `L` |
+| ISO 3098 / Italic | `M` `L` `A` |
 
 ---
 
@@ -28,10 +57,11 @@ authoritative reference.
 
 | Feature | View (`/`) | Edit (`/?mode=edit`) |
 |---|:---:|:---:|
-| Stroke order animation | ✓ | ✓ |
+| Stroke animation | ✓ | ✓ |
 | KanjiVG side-by-side reference | ✓ | ✓ |
 | BIZ UD Mincho background overlay | ✓ | ✓ |
 | Verified (校正済み) badge | ✓ | ✓ |
+| Text → PNG renderer | ✓ | ✓ |
 | Reorder strokes / segments | | ✓ |
 | Split / merge strokes | | ✓ |
 | Promote segment to independent stroke | | ✓ |
@@ -39,27 +69,28 @@ authoritative reference.
 | Drag-and-drop segment reassignment | | ✓ |
 | Mark character as verified | | ✓ |
 | Export diff JSON / full JSON / SVG | | ✓ |
-| Load local JSON / SVG correction file | | ✓ |
+| Load local JSON / SVG file | | ✓ |
 
-**Additional UI features**
+### UI features
 
-- Light / Dark theme toggle (respects `prefers-color-scheme`)
-- Font size switch — Small 20 px / Medium 24 px / Large 28 px (scales the entire UI via `html { font-size }`)
-- Full-text search across all 5,233 characters in the database
+- **Font selector** — switch between M+, KST32B, ISO 3098, ISO 3098 Italic from the left panel
+- **Category selector** — Unicode-block-based combobox; shows all characters in the active font
+- **Inline search** — filter within the selected category
+- Light / Dark theme (respects `prefers-color-scheme`)
+- Font size switch — Small 20 px / Medium 24 px / Large 28 px
 - PWA — installable and offline-capable via Service Worker (Workbox)
-- Responsive layout down to 768 px with mobile drawer navigation
+- Responsive layout (mobile drawer navigation below 768 px)
 
----
+### Text → PNG renderer
 
-## Data
+Click the **画像** button (left panel, below the font selector) to open the renderer.
 
-| Dataset | Characters | Coverage |
-|---|---:|---|
-| M+ stroke data (`strokes.json`) | 5,233 | source |
-| KanjiVG reference (`kanjivg.json`) | 5,142 | 98.3 % of M+ |
+- Enter multi-line text; each line is rendered using the active font
+- Controls: character size (8–200 px), stroke width, letter spacing, line spacing, padding,
+  stroke colour, background colour (with transparency option)
+- Live preview updates automatically; click **PNG 保存** to download
 
-The uncovered 1.7 % consists of half-width katakana, rare CJK characters, and symbols —
-outside KanjiVG's scope by design.
+SVG arc (`A`) commands in ISO 3098 are converted to cubic Bézier curves for Canvas rendering.
 
 ---
 
@@ -75,8 +106,8 @@ outside KanjiVG's scope by design.
 ```bash
 pnpm install
 pnpm dev
-# View mode  → http://localhost:5173/
-# Edit mode  → http://localhost:5173/?mode=edit
+# View mode → http://localhost:5173/
+# Edit mode → http://localhost:5173/?mode=edit
 ```
 
 ### Build
@@ -92,8 +123,8 @@ pnpm preview  # preview locally
 2. **Settings → Pages → Source → GitHub Actions**
 3. `.github/workflows/deploy.yml` builds and deploys automatically
 
-`VITE_BASE` is set from the repository name.  
-For a custom domain or root deployment set `VITE_BASE=/` in the workflow env.
+`VITE_BASE` is derived from the repository name automatically.  
+For a custom domain or root deployment, set `VITE_BASE=/` in the workflow env.
 
 ### Deploy — GitLab Pages
 
@@ -101,14 +132,29 @@ Push to the default branch. `.gitlab-ci.yml` handles everything.
 
 ---
 
-## Correction Workflow
+## Lazy-loaded chunks
+
+Each font dataset is loaded on demand — only M+ loads at startup.
+
+| Chunk | Size (raw) | Loaded when |
+|---|---:|---|
+| `strokes-*.js` | 3.7 MB | startup (M+ OUTLINE) |
+| `kst32b_strokes-*.js` | 2.6 MB | KST32B selected |
+| `kanjivg-*.js` | 6.2 MB | KanjiVG panel opened |
+| `iso3098_strokes-*.js` | 82 KB | ISO 3098 selected |
+| `iso3098i_strokes-*.js` | 83 KB | ISO 3098 Italic selected |
+
+---
+
+## Correction Workflow (M+ stroke order)
 
 ```
 [Open /?mode=edit]
        ↓
-[Select character from sidebar or search]
+[Select font → M+ OUTLINE]
+[Select character from left panel (category combobox or search)]
        ↓
-[Compare M+ canvas (left) with KanjiVG reference (right)]
+[Compare M+ canvas (left) against KanjiVG reference (right)]
        ↓
 [Edit: reorder / split / merge / reverse / drag-drop segments]
        ↓
@@ -121,10 +167,9 @@ Push to the default branch. `.gitlab-ci.yml` handles everything.
 
 ## Contributing Corrections
 
-**Correction submissions are always welcome.**
+**Correction submissions are always welcome** — for any of the four fonts.
 
-If you have corrected stroke order data — as a JSON diff or the full SVG — please open an
-**Issue** or **Pull Request**.
+Open an **Issue** or **Pull Request** with your corrected data.
 
 ### Diff JSON (preferred)
 
@@ -146,9 +191,10 @@ If you have corrected stroke order data — as a JSON diff or the full SVG — p
 }
 ```
 
-### Full SVG (M+ stroke format)
+Each stroke is one element of the `s` array — an SVG path string (space-separated segments).  
+Set `"verified": true` to raise the verified flag.
 
-`mplus_stroke_corrected.svg` — same format as the original `mplus_stroke.svg`:
+### Full SVG (M+ stroke format)
 
 ```xml
 <!-- UTF16:65E5 UTF8:e697a5 item:5 -->
@@ -177,20 +223,23 @@ If you have corrected stroke order data — as a JSON diff or the full SVG — p
 
 **MIT** — see [LICENSE](LICENSE)
 
-### Third-party data
+### Third-party data licenses
 
 | Data | License | Author |
 |---|---|---|
 | [M+ OUTLINE FONTS](https://mplusfonts.github.io/) stroke data | [M+ FONTS LICENSE](https://mplusfonts.github.io/) | M+ FONTS PROJECT |
 | [KanjiVG](https://kanjivg.tagaini.net/) reference | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | Ulrich Apel |
+| [KST32B](https://domisan.sakura.ne.jp/article/cadfont/cadfont.html) stroke font | GPL v2 or later | Saka.N (convert: AZO) |
+| [ISO 3098](https://domisan.sakura.ne.jp/article/cadfont/cadfont.html) stroke font | — | AZO |
 | [BIZ UD Mincho](https://fonts.google.com/specimen/BIZ+UDMincho) | [SIL OFL 1.1](https://scripts.sil.org/OFL) | Morisawa |
 
 ---
 
 ## Acknowledgements
 
-- **M+ FONTS PROJECT** — for the stroke-based font design that makes this possible
+- **M+ FONTS PROJECT** — for the stroke-based font design that makes this project possible
 - **Ulrich Apel** — for KanjiVG, the authoritative Japanese stroke order reference
+- **Saka.N** — for the KST32B stroke font
 - **Morisawa** — for releasing BIZ UD fonts under the OFL
-- Original stroke SVG extraction work:
-  [domisan.sakura.ne.jp — CAD用ストロークフォント](https://domisan.sakura.ne.jp/article/cadfont/cadfont.html#MPLUSStroke)
+- CAD stroke font data and conversion work:
+  [domisan.sakura.ne.jp — CAD用ストロークフォント](https://domisan.sakura.ne.jp/article/cadfont/cadfont.html)
