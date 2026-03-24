@@ -1,0 +1,71 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Light theme ── */
+:root {
+  --ink:     #1c1612;
+  --paper:   #f7f3eb;
+  --paper2:  #ede8dc;
+  --paper3:  #e4dfd4;
+  --gold:    #9e7c35;
+  --red:     #b5301e;
+  --green:   #1c6434;
+  --blue:    #1a3a6e;
+  --border:  rgba(0,0,0,0.09);
+  --shadow:  rgba(0,0,0,0.08);
+  --panel-bg:   #faf8f4;
+  --header-bg:  #ede8dc;
+  --sidebar-bg: #f7f3eb;
+  --canvas-bg:  #ffffff;
+  --ghost:   #ddd8ce;
+  --seg-sel: #fff3e0;
+  --seg-sel-border: #ff6600;
+  --text-muted: #999;
+  --text-dim:   #bbb;
+  --scrollbar:  rgba(0,0,0,0.18);
+}
+
+/* ── Dark theme ── */
+:root.dark {
+  --ink:     #e8e2d8;
+  --paper:   #1a1714;
+  --paper2:  #222019;
+  --paper3:  #2a271f;
+  --gold:    #c8a040;
+  --red:     #d94030;
+  --green:   #2a9a50;
+  --blue:    #4a6eb8;
+  --border:  rgba(255,255,255,0.09);
+  --shadow:  rgba(0,0,0,0.3);
+  --panel-bg:   #1e1c18;
+  --header-bg:  #222019;
+  --sidebar-bg: #1a1714;
+  --canvas-bg:  #111010;
+  --ghost:   #3a3830;
+  --seg-sel: #2a1f10;
+  --seg-sel-border: #e07020;
+  --text-muted: #666;
+  --text-dim:   #444;
+  --scrollbar:  rgba(255,255,255,0.15);
+}
+
+html {
+  font-size: 24px; /* 初期値 = 中 / JS で上書きされる */
+  height: 100%;
+  overflow: hidden;
+}
+body, #app { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Noto Serif JP', 'Hiragino Kaku Gothic ProN', serif;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
+}
+
+button { font-family: inherit; }
+input  { font-family: inherit; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }

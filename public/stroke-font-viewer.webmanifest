@@ -1,0 +1,21 @@
+{
+  "name": "ストロークフォントビューア",
+  "short_name": "StrokeFontViewer",
+  "description": "ストロークフォント（ベクターフォント）を閲覧・加工するためのビューアアプリです。",
+  "lang": "ja",
+  "start_url": "https://azo234.github.io/stroke-font-viewer/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "favicon512.png",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/wide.png",
+      "sizes": "1920x1080",
+      "form_factor": "wide"
+    }
+ ]
+}
